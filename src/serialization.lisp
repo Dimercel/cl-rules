@@ -5,7 +5,7 @@
   (:import-from :cl-yaml
                 :parse
                 :emit)
-  (:import-from :cl-rules
+  (:import-from :cl-rules.core
                 :cond-args
                 :cond-name
                 :make-cond

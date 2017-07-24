@@ -19,8 +19,9 @@
   :depends-on (:cl-yaml)
   :components ((:module "src"
                 :components
-                ((:file "cl-rules")
-                 (:file "serialization" :depends-on ("cl-rules")))))
+                ((:file "core")
+                 (:file "serialization" :depends-on ("core"))
+                 (:file "cl-rules" :depends-on ("core" "serialization")))))
   :description ""
   :long-description
   #.(with-open-file (stream (merge-pathnames
