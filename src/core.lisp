@@ -1,6 +1,8 @@
 (in-package :cl-user)
 (defpackage cl-rules.core
   (:use :cl)
+  (:import-from :alexandria
+                :hash-table-keys)
   (:export :cond-args
            :cond-name
            :cond-reg-p
@@ -15,7 +17,8 @@
            :rule-conditions
            :rule-name
            :rule-reg-p
-           :setparam))
+           :setparam
+           :with-rules))
 (in-package :cl-rules.core)
 
 
@@ -151,6 +154,12 @@
                          forms)))
     `(setf (gethash ,(symbol-name name) *rules*)
            ',(make-rule name conditions))))
+
+(defmacro with-rules (sym &body forms)
+  "Позволяет пройти по именам всех
+  зарегистрированных правил"
+  `(dolist (,sym (hash-table-keys *rules*))
+     ,@forms))
 
 (defun fire-condition (condition)
   "Выполняет предикат-условие. Вернет истину или ложь."

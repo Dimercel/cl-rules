@@ -16,7 +16,7 @@
   :version "0.1"
   :author "Ito Dimercel"
   :license "GPL-3.0"
-  :depends-on (:cl-yaml)
+  :depends-on (:cl-yaml :alexandria)
   :components ((:module "src"
                 :components
                 ((:file "core")
