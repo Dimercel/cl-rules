@@ -1,19 +1,21 @@
 (in-package :cl-user)
 (defpackage cl-rules.core
   (:use :cl)
-  (:export :param-reg-p
-           :rule-by-name
+  (:export :cond-args
+           :cond-name
+           :cond-reg-p
+           :defcond
+           :defparam
+           :defrule
+           :fire-rule
            :make-cond
            :make-rule
-           :cond-name
-           :cond-args
+           :param-reg-p
+           :rule-by-name
            :rule-conditions
            :rule-name
-           :setparam
-           :defparam
-           :defcond
-           :defrule
-           :fire-rule))
+           :rule-reg-p
+           :setparam))
 (in-package :cl-rules.core)
 
 
