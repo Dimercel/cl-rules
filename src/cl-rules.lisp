@@ -8,8 +8,9 @@
                 :defrule
                 :fire-rule)
   (:import-from :cl-rules.serialization
-                :unserialize
-                :save-to-file)
+                :parse
+                :save-to-file
+                :save-to-str)
   (:export :setparam
            :defparam
            :defcond

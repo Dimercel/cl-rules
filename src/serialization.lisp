@@ -1,10 +1,7 @@
 
 (in-package :cl-user)
 (defpackage cl-rules.serialization
-  (:use :cl)
-  (:import-from :cl-yaml
-                :parse
-                :emit)
+  (:use :cl :cl-yaml)
   (:import-from :cl-rules.core
                 :cond-args
                 :cond-name
@@ -14,7 +11,8 @@
                 :rule-by-name
                 :rule-conditions
                 :rule-name)
-  (:export :unserialize
+  (:export :parse
+           :save-to-str
            :save-to-file))
 (in-package :cl-rules.serialization)
 
@@ -51,9 +49,9 @@
         #'unserialize-cond
         (gethash name rules))))
 
-(defun unserialize (str-or-path)
+(defun parse (str-or-path)
   (let ((result '())
-        (data (gethash "rules" (parse str-or-path))))
+        (data (gethash "rules" (cl-yaml:parse str-or-path))))
     (maphash (lambda (name val)
                (declare (ignore val))
                (setf result
@@ -85,13 +83,19 @@
              (rule-conditions rule)))
   ruleset)
 
-(defun save-to-file (path &rest rule-names)
+(defun save-to-str (&rest rule-names)
   (when (listp (first rule-names))
     (setf rule-names (first rule-names)))
   (let ((ruleset (make-hash-table :test 'equalp)))
     (setf (gethash "rules" ruleset)
           (make-hash-table :test 'equalp))
+    (dolist (name rule-names)
+      (serialize-rule (rule-by-name name) ruleset))
+    (cl-yaml:emit-to-string ruleset)))
+
+(defun save-to-file (path &rest rule-names)
+  (when (listp (first rule-names))
+    (setf rule-names (first rule-names)))
+  (let ((str-ruleset (save-to-str rule-names)))
     (with-open-file (stream path :direction :output)
-      (dolist (name rule-names)
-        (serialize-rule (rule-by-name name) ruleset))
-      (emit ruleset stream))))
+      (format stream str-ruleset))))
