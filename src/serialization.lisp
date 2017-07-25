@@ -17,6 +17,8 @@
 (in-package :cl-rules.serialization)
 
 
+(defconstant +root-key+ "rules")
+
 (defun is-param-p (item)
   "Строка представляет собой
   указание на параметр?"
@@ -51,7 +53,7 @@
 
 (defun parse (str-or-path)
   (let ((result '())
-        (data (gethash "rules" (cl-yaml:parse str-or-path))))
+        (data (gethash +root-key+ (cl-yaml:parse str-or-path))))
     (maphash (lambda (name val)
                (declare (ignore val))
                (setf result
@@ -77,7 +79,7 @@
 
 (defun serialize-rule (rule ruleset)
   (setf (gethash (string-downcase (rule-name rule))
-                 (gethash "rules" ruleset))
+                 (gethash +root-key+ ruleset))
         (map 'list
              #'serialize-cond
              (rule-conditions rule)))
@@ -87,7 +89,7 @@
   (when (listp (first rule-names))
     (setf rule-names (first rule-names)))
   (let ((ruleset (make-hash-table :test 'equalp)))
-    (setf (gethash "rules" ruleset)
+    (setf (gethash +root-key+ ruleset)
           (make-hash-table :test 'equalp))
     (dolist (name rule-names)
       (serialize-rule (rule-by-name name) ruleset))
