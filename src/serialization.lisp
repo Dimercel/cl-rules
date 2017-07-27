@@ -8,9 +8,11 @@
                 :make-cond
                 :make-rule
                 :param-reg-p
+                :register-rule
                 :rule-by-name
                 :rule-conditions
-                :rule-name)
+                :rule-name
+                :rule-reg-p)
   (:export :loads
            :save-to-str
            :save-to-file))
@@ -53,7 +55,8 @@
 
 (defun loads (str-or-path)
   (let ((result '())
-        (data (gethash +root-key+ (cl-yaml:parse str-or-path))))
+        (data (gethash +root-key+
+                       (cl-yaml:parse str-or-path))))
     (maphash (lambda (name val)
                (declare (ignore val))
                (setf result
@@ -62,7 +65,13 @@
                                         data)
                       result)))
              data)
-    result))
+    (let ((names (map 'list 'rule-name result)))
+      ;; все правила должны быть не зарегистрированными
+      (when (some #'rule-reg-p names)
+        (error "One or more rules already registered!"))
+      ;; регистрируем все загруженные правила
+      (map 'list 'register-rule result)
+      names)))
 
 (defun serialize-param (name)
   (format nil "{{~a}}" (string-downcase (symbol-name name))))

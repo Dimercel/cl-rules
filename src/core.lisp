@@ -13,6 +13,7 @@
            :make-cond
            :make-rule
            :param-reg-p
+           :register-rule
            :rule-by-name
            :rule-conditions
            :rule-name
@@ -141,9 +142,9 @@
   "Правило с именем NAME зарегистрировано?"
   (not (null (rule-by-name name))))
 
-(defun rule-register (rule)
+(defun register-rule (rule)
   "Регистрирует новое правило"
-  (gethash (rule-name rule) rule))
+  (setf (gethash (rule-name rule) *rules*) rule))
 
 (defmacro defrule (name &body forms)
   "Объявляет новое правило с именем NAME"
