@@ -174,9 +174,7 @@
     (setf rule-names (first rule-names)))
   (every
    (lambda (x)
-     (let ((rule (if (symbolp x)
-                     (gethash (symbol-name x) *rules*)
-                     (gethash (string-upcase x) *rules*))))
+     (let ((rule (rule-by-name x)))
        (every
         #'fire-condition
         (rule-conditions rule))))
