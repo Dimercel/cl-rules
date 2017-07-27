@@ -12,7 +12,7 @@
                 :setparam
                 :with-rules)
   (:import-from :cl-rules.serialization
-                :parse
+                :loads
                 :save-to-file
                 :save-to-str)
   (:export :cond-reg-p
@@ -24,7 +24,7 @@
            :rule-reg-p
            :setparam
            :with-rules
-           :parse
+           :loads
            :save-to-file
            :save-to-str))
 (in-package :cl-rules)

@@ -11,7 +11,7 @@
                 :rule-by-name
                 :rule-conditions
                 :rule-name)
-  (:export :parse
+  (:export :loads
            :save-to-str
            :save-to-file))
 (in-package :cl-rules.serialization)
@@ -51,7 +51,7 @@
         #'unserialize-cond
         (gethash name rules))))
 
-(defun parse (str-or-path)
+(defun loads (str-or-path)
   (let ((result '())
         (data (gethash +root-key+ (cl-yaml:parse str-or-path))))
     (maphash (lambda (name val)
