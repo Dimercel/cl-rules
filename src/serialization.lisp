@@ -5,6 +5,7 @@
   (:import-from :cl-rules.core
                 :cond-args
                 :cond-name
+                :cond-reg-p
                 :make-cond
                 :make-rule
                 :param-reg-p
@@ -30,23 +31,31 @@
        (equal (subseq (reverse item) 0 2) "}}")))
 
 (defun unserialize-param (param-str)
-  (intern
-   (string-upcase
-    (string-right-trim
-     "}}"
-     (string-left-trim "{{" param-str)))))
+  (flet ((param-name (str)
+           (string-right-trim
+            "}}"
+            (string-left-trim "{{" str))))
+    (let ((name (param-name param-str)))
+      (unless (param-reg-p name)
+        (error (format nil "Parameter with name '~a' not registered!" name)))
+      (intern (string-upcase name)))))
 
 (defun unserialize-cond (condition)
-  (make-cond
-   (first condition)
-   (map 'list
-        (lambda (x)
-          (if (is-param-p x)
-              (unserialize-param x)
-              x))
-        (rest condition))))
+  (let ((cond-name (first condition)))
+    (unless (cond-reg-p cond-name)
+      (error (format nil "Condition with name '~a' not registered!" cond-name)))
+    (make-cond
+     cond-name
+     (map 'list
+          (lambda (x)
+            (if (is-param-p x)
+                (unserialize-param x)
+                x))
+          (rest condition)))))
 
 (defun unserialize-rule (name rules)
+  (when (rule-reg-p name)
+    (error (format nil "Rule with name '~a' already registered!" name)))
   (make-rule
    name
    (map 'list
@@ -66,9 +75,6 @@
                       result)))
              data)
     (let ((names (map 'list 'rule-name result)))
-      ;; все правила должны быть не зарегистрированными
-      (when (some #'rule-reg-p names)
-        (error "One or more rules already registered!"))
       ;; регистрируем все загруженные правила
       (map 'list 'register-rule result)
       names)))
