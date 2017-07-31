@@ -52,8 +52,10 @@
 
 (defmacro defparam (name form)
   "Собственно объявление нового параметра."
-  `(setf (gethash ,(symbol-name name) *parameters*)
-         ,form))
+  (if (param-reg-p name)
+      (error (format nil "Parameter with name '~a' already exists!" name))
+      `(setf (gethash ,(symbol-name name) *parameters*)
+             ,form)))
 
 
 ;;; Описание условий
@@ -100,8 +102,10 @@
 (defmacro defcond (name args &body forms)
   "Объявляет новое условие с именем NAME.
   Представляет собой произвольного вида предикат"
-  `(setf (gethash ,(symbol-name name) *conditions*)
-         (lambda ,args ,@forms)))
+  (if (cond-reg-p name)
+      (error (format nil "Condition with name '~a' already exists!" name))
+      `(setf (gethash ,(symbol-name name) *conditions*)
+             (lambda ,args ,@forms))))
 
 
 ;;; Описание правил
@@ -153,8 +157,10 @@
                            (make-cond (first x)
                                       (rest x)))
                          forms)))
-    `(setf (gethash ,(symbol-name name) *rules*)
-           ',(make-rule name conditions))))
+    (if (rule-reg-p name)
+        (error (format nil "Rule with name '~a' already exists!" name))
+        `(setf (gethash ,(symbol-name name) *rules*)
+               ',(make-rule name conditions)))))
 
 (defmacro with-rules (sym &body forms)
   "Позволяет пройти по именам всех
