@@ -1,4 +1,8 @@
-# Cl-Rules
+# cl-rules
+
+[![Build Status](https://travis-ci.org/Dimercel/cl-rules.svg?branch=master)](https://travis-ci.org/Dimercel/cl-rules)
+
+Simple DSL for rules that can be configured without code
 
 ## Usage
 
