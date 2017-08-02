@@ -15,7 +15,8 @@
                :prove)
   :components ((:module "t"
                 :components
-                ((:test-file "cl-rules"))))
+                ((:test-file "cl-rules")
+                 (:test-file "core"))))
   :description "Test system for cl-rules"
 
   :defsystem-depends-on (:prove-asdf)
