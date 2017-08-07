@@ -13,6 +13,7 @@
            :make-cond
            :make-rule
            :param-reg-p
+           :param-val
            :register-rule
            :rule-by-name
            :rule-conditions
@@ -182,7 +183,7 @@
   (every
    (lambda (x)
      (let ((rule (rule-by-name x)))
-       (every
-        #'fire-condition
-        (rule-conditions rule))))
+       (if rule
+           (every #'fire-condition (rule-conditions rule))
+           (error (format nil "Rule with name '~a' does not exists!" x)))))
    rule-names))

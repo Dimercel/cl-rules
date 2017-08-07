@@ -8,6 +8,7 @@
                 :defrule
                 :fire-rule
                 :param-reg-p
+                :param-val
                 :rule-reg-p
                 :setparam
                 :with-rules)
@@ -21,6 +22,7 @@
            :defrule
            :fire-rule
            :param-reg-p
+           :param-val
            :rule-reg-p
            :setparam
            :with-rules
