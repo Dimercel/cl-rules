@@ -22,7 +22,7 @@
 (in-package :cl-rules.serialization)
 
 
-(define-constant +root-key+ "rules")
+(define-constant +root-key+ "rules" :test 'equalp)
 
 (defun is-param-p (item)
   "Строка представляет собой
