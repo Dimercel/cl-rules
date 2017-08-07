@@ -14,13 +14,15 @@
                 :rule-conditions
                 :rule-name
                 :rule-reg-p)
+  (:import-from :alexandria
+                :define-constant)
   (:export :loads
            :save-to-str
            :save-to-file))
 (in-package :cl-rules.serialization)
 
 
-(defconstant +root-key+ "rules")
+(define-constant +root-key+ "rules")
 
 (defun is-param-p (item)
   "Строка представляет собой
