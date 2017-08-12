@@ -22,7 +22,7 @@
    ))
 (in-package :cl-rules-test.core)
 
-(plan 24)
+(plan 25)
 
 
 (defcond test-cond ()
@@ -77,6 +77,9 @@
 (ok (fire-rule '()))
 (ok (fire-rule 'rule1))
 (ok (fire-rule 'rule1 "rule1" "RULE1" "RuLe1"))
+
+;; impossible to redefine rule
+(is-error (defrule rule1 (always-true)) 'error)
 
 ;; error if rule not exists
 (is-error (fire-rule 'unknown) 'error)
