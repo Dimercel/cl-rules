@@ -1,0 +1,11 @@
+rules:
+  mini-tariff:
+    - [ram, "{{ram}}", 512]
+    - [cpu, "{{cpu}}", 1]
+    - [disc, "{{disc}}", 20]
+    - [traffic, "{{traffic}}", 1]
+  base-tariff:
+    - [ram, "{{ram}}", 1024]
+    - [cpu, "{{cpu}}", 1]
+    - [disc, "{{disc}}", 30]
+    - [traffic, "{{traffic}}", 2]
