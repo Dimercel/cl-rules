@@ -2,10 +2,12 @@
 (defpackage cl-rules
   (:use :cl)
   (:import-from :cl-rules.core
+                :bind-commands
                 :cond-reg-p
                 :defcond
                 :defparam
                 :defrule
+                :eval-rule
                 :fire-rule
                 :param-reg-p
                 :param-val

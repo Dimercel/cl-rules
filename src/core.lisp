@@ -3,12 +3,14 @@
   (:use :cl)
   (:import-from :alexandria
                 :hash-table-keys)
-  (:export :cond-args
+  (:export :bind-commands
+           :cond-args
            :cond-name
            :cond-reg-p
            :defcond
            :defparam
            :defrule
+           :eval-rule
            :fire-rule
            :make-cond
            :make-rule
@@ -16,6 +18,7 @@
            :param-val
            :register-rule
            :rule-by-name
+           :rule-commands
            :rule-conditions
            :rule-name
            :rule-reg-p
@@ -25,8 +28,9 @@
 
 
 (defvar *parameters* (make-hash-table :test 'equal))
+(defvar *commands*   (make-hash-table :test 'equal))
 (defvar *conditions* (make-hash-table :test 'equal))
-(defvar *rules* (make-hash-table :test 'equal))
+(defvar *rules*      (make-hash-table :test 'equal))
 
 
 ;;; Описание параметров
@@ -57,6 +61,36 @@
       (error (format nil "Parameter with name '~a' already exists!" name))
       `(setf (gethash ,(symbol-name name) *parameters*)
              ,form)))
+
+
+;;; Описание команд
+
+
+(defun command-by-name (name)
+  "Return command by specified name.
+   Name must be a symbol or string"
+  (if (symbolp name)
+      (gethash (symbol-name name) *commands*)
+      (gethash (string-upcase name) *commands*)))
+
+(defun command-reg-p (name)
+  "Command with NAME is registered?"
+  (not (null (command-by-name name))))
+
+(defun eval-command (&rest command-names)
+  (when (listp (first command-names))
+    (setf command-names (first command-names)))
+  (dolist (name command-names)
+    (let ((command (command-by-name name)))
+      (if (functionp command)
+          (funcall command)
+          (error (format nil "Command with name '~a' does not exists!" name))))))
+
+(defmacro defcommand (name &body forms)
+  (if (command-reg-p name)
+      (error (format nil "Command with name '~a' already exists!" name))
+      `(setf (gethash ,(symbol-name name) *commands*)
+             (lambda () ,@forms))))
 
 
 ;;; Описание условий
@@ -112,12 +146,12 @@
 ;;; Описание правил
 
 
-(defun make-rule (name conditions)
+(defun make-rule (name conditions &optional commands)
   "Создает новое правило с именем NAME и
   списком условий CONDITIONS"
   (if (symbolp name)
-      (list (symbol-name name) conditions)
-      (list (string-upcase name) conditions)))
+      (list (symbol-name name) conditions (when commands (symbol-name commands)))
+      (list (string-upcase name) conditions (when commands (symbol-name commands)))))
 
 (defun rule-name (rule)
   "Вернет имя правила в виде строки"
@@ -128,13 +162,11 @@
   хранятся вместе с зафиксированными аргументами"
   (second rule))
 
-(defun rule-valid-p (rule)
-  "Проверяет корректность построенного правила."
-  (every
-   ;; Все условия, составляющие правило должны
-   ;; быть зарегистрированными
-   (lambda (x) (cond-reg-p (first x)))
-   (rule-conditions rule)))
+(defun rule-commands (rule)
+  "List of command names. If rule is true,
+   then commands evaluates"
+  (third rule))
+
 
 (defun rule-by-name (name)
   "Вернет правило по имени NAME.
@@ -169,10 +201,21 @@
   `(dolist (,sym (hash-table-keys *rules*))
      ,@forms))
 
+(defun bind-commands (&rest commands)
+  (if (every #'command-reg-p commands)
+      commands
+      (error (format nil "Command with speccified name does not exists!"))))
+
 (defun fire-condition (condition)
   "Выполняет предикат-условие. Вернет истину или ложь."
   (let ((predicate (cond-by-name (cond-name condition))))
     (apply predicate (cond-args (cond-eval-params condition)))))
+
+(defun rule-value (name)
+  (let ((rule (rule-by-name name)))
+    (if rule
+        (every #'fire-condition (rule-conditions rule))
+        (error (format nil "Rule with name '~a' does not exists!" name)))))
 
 (defun fire-rule (&rest rule-names)
   "Выполняет правила. Вернет истину, если все
@@ -180,10 +223,14 @@
   его условия истинны."
   (when (listp (first rule-names))
     (setf rule-names (first rule-names)))
+  (every #'rule-value rule-names))
+
+(defun eval-rule (&rest rule-names)
+  (when (listp (first rule-names))
+    (setf rule-names (first rule-names)))
   (every
    (lambda (x)
-     (let ((rule (rule-by-name x)))
-       (if rule
-           (every #'fire-condition (rule-conditions rule))
-           (error (format nil "Rule with name '~a' does not exists!" x)))))
+     (when (rule-value x)
+       (eval-command (rule-commands (rule-by-name x)))
+       t))
    rule-names))
