@@ -3,10 +3,11 @@
   (:use :cl)
   (:import-from :alexandria
                 :hash-table-keys)
-  (:export :bind-commands
+  (:export :command-reg-p
            :cond-args
            :cond-name
            :cond-reg-p
+           :defcommand
            :defcond
            :defparam
            :defrule
@@ -76,6 +77,14 @@
 (defun command-reg-p (name)
   "Command with NAME is registered?"
   (not (null (command-by-name name))))
+
+(defun verify-commands (commands)
+  "Verify command names and puts them in list"
+  (when (null commands)
+    nil)
+  (if (every #'command-reg-p commands)
+      commands
+      (error (format nil "Command with speccified name does not exists!"))))
 
 (defun eval-command (&rest command-names)
   (when (listp (first command-names))
@@ -150,8 +159,8 @@
   "Создает новое правило с именем NAME и
   списком условий CONDITIONS"
   (if (symbolp name)
-      (list (symbol-name name) conditions (when commands (symbol-name commands)))
-      (list (string-upcase name) conditions (when commands (symbol-name commands)))))
+      (list (symbol-name name) conditions (verify-commands commands))
+      (list (string-upcase name) conditions (verify-commands commands))))
 
 (defun rule-name (rule)
   "Вернет имя правила в виде строки"
@@ -203,12 +212,6 @@
   зарегистрированных правил"
   `(dolist (,sym (hash-table-keys *rules*))
      ,@forms))
-
-(defun bind-commands (&rest commands)
-  "Verify command names and puts them in list"
-  (if (every #'command-reg-p commands)
-      commands
-      (error (format nil "Command with speccified name does not exists!"))))
 
 (defun fire-condition (condition)
   "Выполняет предикат-условие. Вернет истину или ложь."
