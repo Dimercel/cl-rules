@@ -185,15 +185,18 @@
 
 (defmacro defrule (name &body forms)
   "Объявляет новое правило с именем NAME"
-  (let ((conditions (map 'list
+  (let ((commands (when (eq (first forms) :commands)
+                    (progn
+                      (setf forms (cddr forms))
+                      (second forms))))
+        (conditions (map 'list
                          (lambda (x)
-                           (make-cond (first x)
-                                      (rest x)))
+                           (make-cond (first x) (rest x)))
                          forms)))
     (if (rule-reg-p name)
         (error (format nil "Rule with name '~a' already exists!" name))
         `(setf (gethash ,(symbol-name name) *rules*)
-               ',(make-rule name conditions)))))
+               ',(make-rule name conditions commands)))))
 
 (defmacro with-rules (sym &body forms)
   "Позволяет пройти по именам всех
@@ -202,6 +205,7 @@
      ,@forms))
 
 (defun bind-commands (&rest commands)
+  "Verify command names and puts them in list"
   (if (every #'command-reg-p commands)
       commands
       (error (format nil "Command with speccified name does not exists!"))))
@@ -212,20 +216,22 @@
     (apply predicate (cond-args (cond-eval-params condition)))))
 
 (defun rule-value (name)
+  "Rule is true?"
   (let ((rule (rule-by-name name)))
     (if rule
         (every #'fire-condition (rule-conditions rule))
         (error (format nil "Rule with name '~a' does not exists!" name)))))
 
 (defun fire-rule (&rest rule-names)
-  "Выполняет правила. Вернет истину, если все
-  правила истинны. Правило истинно, если все
-  его условия истинны."
+  "Выполняет правила. Вернет истину, если все правила истинны.
+  Правило истинно, если все его условия истинны. Связанные с
+  правилом команды не выполняются"
   (when (listp (first rule-names))
     (setf rule-names (first rule-names)))
   (every #'rule-value rule-names))
 
 (defun eval-rule (&rest rule-names)
+  "Is similar fire-rule, but evaluate commands"
   (when (listp (first rule-names))
     (setf rule-names (first rule-names)))
   (every
