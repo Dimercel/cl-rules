@@ -11,6 +11,7 @@
                 :param-reg-p
                 :register-rule
                 :rule-by-name
+                :rule-commands
                 :rule-conditions
                 :rule-name
                 :rule-reg-p)
@@ -58,11 +59,18 @@
 (defun unserialize-rule (name rules)
   (when (rule-reg-p name)
     (error (format nil "Rule with name '~a' already registered!" name)))
-  (make-rule
-   name
-   (map 'list
-        #'unserialize-cond
-        (gethash name rules))))
+  (if (listp (gethash name rules))
+      (make-rule
+       name
+       (map 'list
+            #'unserialize-cond
+            (gethash name rules)))
+      (make-rule
+       name
+       (map 'list
+            #'unserialize-cond
+            (gethash "conditions" (gethash name rules)))
+       (gethash "commands" (gethash name rules)))))
 
 (defun loads (str-or-path)
   (let ((result '())
@@ -94,13 +102,29 @@
               (eval x)))
         (cond-args condition))))
 
+(defun serialize-commands (commands)
+  (map 'list
+       (lambda (x)
+         (if (symbolp x)
+             (string-downcase (symbol-name x))
+             (string-downcase x)))
+       commands))
+
 (defun serialize-rule (rule ruleset)
-  (setf (gethash (string-downcase (rule-name rule))
-                 (gethash +root-key+ ruleset))
-        (map 'list
-             #'serialize-cond
-             (rule-conditions rule)))
-  ruleset)
+  (let ((commands (serialize-commands (rule-commands rule)))
+        (conditions (map 'list #'serialize-cond (rule-conditions rule)))
+        (name (string-downcase (rule-name rule))))
+    (if (null commands)
+        (setf (gethash name (gethash +root-key+ ruleset))
+              conditions)
+        (progn
+          (setf (gethash name (gethash +root-key+ ruleset))
+                (make-hash-table :test 'equalp))
+          (setf (gethash "conditions" (gethash name (gethash +root-key+ ruleset)))
+                conditions)
+          (setf (gethash "commands" (gethash name (gethash +root-key+ ruleset)))
+                commands)))
+    ruleset))
 
 (defun save-to-str (&rest rule-names)
   (when (listp (first rule-names))

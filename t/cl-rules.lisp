@@ -4,16 +4,20 @@
   (:import-from :cl-rules
                 :defparam
                 :setparam
+                :defcommand
                 :defcond
                 :defrule
+                :eval-rule
                 :fire-rule))
 (in-package :cl-rules-test)
 
 
-(plan 15)
+(plan 20)
 
 (defparam vertex-count 1)
 (defparam angles nil)
+
+(defvar *counter* 0)
 
 
 (defcond vertex-count-is (param number)
@@ -44,7 +48,12 @@
   (not (null value)))
 
 
+(defcommand inc-counter
+  (incf *counter*))
+
+
 (defrule point
+  :commands '(inc-counter)
   (vertex-count-is vertex-count 1))
 
 (defrule line-segment
@@ -55,15 +64,18 @@
   (sum-of-angles-is-180 angles))
 
 (defrule right-triangle
+  :commands '(inc-counter)
   (vertex-count-is vertex-count 3)
   (sum-of-angles-is-180 angles)
   (one-angle-is angles 90))
 
 (defrule obtuse-triangle
+  :commands '(inc-counter)
   (is-true (fire-rule 'triangle))
   (one-angle-more-than angles 90))
 
 (defrule acute-triangle
+  :commands '(inc-counter)
   (is-true (fire-rule 'triangle))
   (all-angles-less-than angles 90))
 
@@ -74,6 +86,8 @@
 
 (ok (fire-rule 'point))
 (ok (not (fire-rule 'line-segment 'triangle 'square)))
+(ok (eval-rule 'point))
+(is *counter* 1)
 
 (setparam vertex-count 2)
 (setparam angles nil)
@@ -87,6 +101,9 @@
 (ok (fire-rule 'triangle 'acute-triangle))
 (ok (not (fire-rule 'right-triangle 'obtuse-triangle)))
 (ok (not (fire-rule 'point 'line-segment 'square )))
+(eval-rule 'point 'line-segment 'triangle 'square
+           'right-triangle 'obtuse-triangle 'acute-triangle)
+(is *counter* 2)
 
 (setparam vertex-count 3)
 (setparam angles '(90 45 45))
@@ -94,6 +111,8 @@
 (ok (fire-rule 'triangle 'right-triangle))
 (ok (not (fire-rule 'obtuse-triangle 'acute-triangle)))
 (ok (not (fire-rule 'point 'line-segment 'square )))
+(eval-rule 'right-triangle)
+(is *counter* 3)
 
 (setparam vertex-count 3)
 (setparam angles '(120 30 30))
@@ -107,6 +126,8 @@
 
 (ok (fire-rule 'square))
 (ok (not (fire-rule 'point 'line-segment 'triangle )))
-
+(eval-rule 'point 'line-segment 'triangle 'square
+           'right-triangle 'obtuse-triangle 'acute-triangle)
+(is *counter* 3)
 
 (finalize)

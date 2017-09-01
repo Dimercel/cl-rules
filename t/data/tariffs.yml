@@ -1,11 +1,17 @@
 rules:
   mini-tariff:
-    - [ram, "{{ram}}", 512]
-    - [cpu, "{{cpu}}", 1]
-    - [disc, "{{disc}}", 20]
-    - [traffic, "{{traffic}}", 1]
+    conditions:
+      - [ram, "{{ram}}", 512]
+      - [cpu, "{{cpu}}", 1]
+      - [disc, "{{disc}}", 20]
+      - [traffic, "{{traffic}}", 1]
+    commands:
+      - pay
   base-tariff:
-    - [ram, "{{ram}}", 1024]
-    - [cpu, "{{cpu}}", 1]
-    - [disc, "{{disc}}", 30]
-    - [traffic, "{{traffic}}", 2]
+    conditions:
+      - [ram, "{{ram}}", 1024]
+      - [cpu, "{{cpu}}", 1]
+      - [disc, "{{disc}}", 30]
+      - [traffic, "{{traffic}}", 2]
+    commands:
+      - pay

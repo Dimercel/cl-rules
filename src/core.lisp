@@ -83,8 +83,12 @@
   (when (null commands)
     nil)
   (if (every #'command-reg-p commands)
-      commands
-      (error (format nil "Command with speccified name does not exists!"))))
+      (map 'list
+           (lambda (x) (if (symbolp x)
+                           (symbol-name x)
+                           (string-upcase x)))
+           commands)
+      (error (format nil "Command with specified name does not exists!"))))
 
 (defun eval-command (&rest command-names)
   (when (listp (first command-names))
@@ -192,12 +196,16 @@
   "Регистрирует новое правило"
   (setf (gethash (rule-name rule) *rules*) rule))
 
+(defun cmd-specified-p (rule-args)
+  (when (> (length rule-args) 2)
+    (eq (first rule-args) :commands)))
+
 (defmacro defrule (name &body forms)
   "Объявляет новое правило с именем NAME"
-  (let ((commands (when (eq (first forms) :commands)
-                    (progn
+  (let ((commands (when (cmd-specified-p forms)
+                    (let ((cmd-names (second forms)))
                       (setf forms (cddr forms))
-                      (second forms))))
+                      (eval cmd-names))))
         (conditions (map 'list
                          (lambda (x)
                            (make-cond (first x) (rest x)))
@@ -237,9 +245,9 @@
   "Is similar fire-rule, but evaluate commands"
   (when (listp (first rule-names))
     (setf rule-names (first rule-names)))
-  (every
-   (lambda (x)
-     (when (rule-value x)
-       (eval-command (rule-commands (rule-by-name x)))
-       t))
-   rule-names))
+  (let ((result t))
+    (dolist (name rule-names)
+      (if (rule-value name)
+          (eval-command (rule-commands (rule-by-name name)))
+          (setf result nil)))
+    result))

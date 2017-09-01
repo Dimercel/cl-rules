@@ -2,9 +2,11 @@
 (defpackage cl-rules-test.core
   (:use :cl :prove)
   (:import-from :cl-rules.core
+                :command-reg-p
                 :cond-args
                 :cond-name
                 :cond-reg-p
+                :defcommand
                 :defcond
                 :defparam
                 :defrule
@@ -22,7 +24,7 @@
    ))
 (in-package :cl-rules-test.core)
 
-(plan 25)
+(plan 29)
 
 
 (defcond test-cond ()
@@ -52,6 +54,15 @@
 (ok (cond-reg-p "test-cond"))
 (ok (cond-reg-p "tEst-cOnd"))
 (ok (cond-reg-p "TEST-COND"))
+
+
+(defcommand test-command ()
+  t)
+
+(ok (command-reg-p 'test-command))
+(ok (command-reg-p "test-command"))
+(ok (command-reg-p "tEst-cOmmAnd"))
+(ok (command-reg-p "TEST-COMMAND"))
 
 
 (defparam mister-x t)
