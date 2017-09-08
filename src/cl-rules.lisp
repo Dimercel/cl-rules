@@ -2,9 +2,9 @@
 (defpackage cl-rules
   (:use :cl)
   (:import-from :cl-rules.core
-                :command-reg-p
+                :action-reg-p
                 :cond-reg-p
-                :defcommand
+                :defaction
                 :defcond
                 :defparam
                 :defrule
@@ -19,9 +19,9 @@
                 :loads
                 :save-to-file
                 :save-to-str)
-  (:export :command-reg-p
+  (:export :action-reg-p
            :cond-reg-p
-           :defcommand
+           :defaction
            :defcond
            :defparam
            :defrule

@@ -3,23 +3,25 @@
   (:use :cl)
   (:import-from :alexandria
                 :hash-table-keys)
-  (:export :command-reg-p
+  (:export :action-reg-p
+           :action-name
+           :action-args
            :cond-args
            :cond-name
            :cond-reg-p
-           :defcommand
+           :defaction
            :defcond
            :defparam
            :defrule
            :eval-rule
            :fire-rule
+           :make-action
            :make-cond
            :make-rule
            :param-reg-p
            :param-val
            :register-rule
            :rule-by-name
-           :rule-commands
            :rule-conditions
            :rule-name
            :rule-reg-p
@@ -29,7 +31,7 @@
 
 
 (defvar *parameters* (make-hash-table :test 'equal))
-(defvar *commands*   (make-hash-table :test 'equal))
+(defvar *actions*    (make-hash-table :test 'equal))
 (defvar *conditions* (make-hash-table :test 'equal))
 (defvar *rules*      (make-hash-table :test 'equal))
 
@@ -64,46 +66,42 @@
              ,form)))
 
 
-;;; Описание команд
+;;; Description of actions
 
 
-(defun command-by-name (name)
-  "Return command by specified name.
+(defun make-action (name args)
+  (if (symbolp name)
+      (list (symbol-name name) args)
+      (list (string-upcase name) args)))
+
+(defun action-name (action)
+  (first action))
+
+(defun action-args (action)
+  (second action))
+
+(defun action-by-name (name)
+  "Return action by specified name.
    Name must be a symbol or string"
   (if (symbolp name)
-      (gethash (symbol-name name) *commands*)
-      (gethash (string-upcase name) *commands*)))
+      (gethash (symbol-name name) *actions*)
+      (gethash (string-upcase name) *actions*)))
 
-(defun command-reg-p (name)
-  "Command with NAME is registered?"
-  (not (null (command-by-name name))))
+(defun action-reg-p (name)
+  "Action with NAME is registered?"
+  (not (null (action-by-name name))))
 
-(defun verify-commands (commands)
-  "Verify command names and puts them in list"
-  (when (null commands)
-    nil)
-  (if (every #'command-reg-p commands)
-      (map 'list
-           (lambda (x) (if (symbolp x)
-                           (symbol-name x)
-                           (string-upcase x)))
-           commands)
-      (error (format nil "Command with specified name does not exists!"))))
+(defun eval-action (action)
+  (let ((name (action-name action)))
+    (if (action-reg-p name)
+        (apply (gethash name *actions*) (action-args action))
+        (error (format nil "Action with name '~a' does not exists!" name)))))
 
-(defun eval-command (&rest command-names)
-  (when (listp (first command-names))
-    (setf command-names (first command-names)))
-  (dolist (name command-names)
-    (let ((command (command-by-name name)))
-      (if (functionp command)
-          (funcall command)
-          (error (format nil "Command with name '~a' does not exists!" name))))))
-
-(defmacro defcommand (name &body forms)
-  (if (command-reg-p name)
-      (error (format nil "Command with name '~a' already exists!" name))
-      `(setf (gethash ,(symbol-name name) *commands*)
-             (lambda () ,@forms))))
+(defmacro defaction (name args &body forms)
+  (if (action-reg-p name)
+      (error (format nil "Action with name '~a' already exists!" name))
+      `(setf (gethash ,(symbol-name name) *actions*)
+             (lambda ,args ,@forms))))
 
 
 ;;; Описание условий
@@ -159,12 +157,12 @@
 ;;; Описание правил
 
 
-(defun make-rule (name conditions &optional commands)
+(defun make-rule (name conditions &optional actions)
   "Создает новое правило с именем NAME и
   списком условий CONDITIONS"
   (if (symbolp name)
-      (list (symbol-name name) conditions (verify-commands commands))
-      (list (string-upcase name) conditions (verify-commands commands))))
+      (list (symbol-name name) conditions actions)
+      (list (string-upcase name) conditions actions)))
 
 (defun rule-name (rule)
   "Вернет имя правила в виде строки"
@@ -175,9 +173,9 @@
   хранятся вместе с зафиксированными аргументами"
   (second rule))
 
-(defun rule-commands (rule)
-  "List of command names. If rule is true,
-   then commands evaluates"
+(defun rule-actions (rule)
+  "List of actions, linked with rule. If value of
+  rule is true, then actions evaluates"
   (third rule))
 
 
@@ -196,16 +194,19 @@
   "Регистрирует новое правило"
   (setf (gethash (rule-name rule) *rules*) rule))
 
-(defun cmd-specified-p (rule-args)
+(defun actions-specified-p (rule-args)
   (when (> (length rule-args) 2)
-    (eq (first rule-args) :commands)))
+    (eq (first rule-args) :actions)))
 
 (defmacro defrule (name &body forms)
   "Объявляет новое правило с именем NAME"
-  (let ((commands (when (cmd-specified-p forms)
-                    (let ((cmd-names (second forms)))
-                      (setf forms (cddr forms))
-                      (eval cmd-names))))
+  (let ((actions (when (actions-specified-p forms)
+                   (let ((act-list (second forms)))
+                     (setf forms (cddr forms))
+                     (map 'list
+                          (lambda (act)
+                            (make-action (first act) (rest act)))
+                          act-list))))
         (conditions (map 'list
                          (lambda (x)
                            (make-cond (first x) (rest x)))
@@ -213,7 +214,7 @@
     (if (rule-reg-p name)
         (error (format nil "Rule with name '~a' already exists!" name))
         `(setf (gethash ,(symbol-name name) *rules*)
-               ',(make-rule name conditions commands)))))
+               ',(make-rule name conditions actions)))))
 
 (defmacro with-rules (sym &body forms)
   "Позволяет пройти по именам всех
@@ -242,12 +243,15 @@
   (every #'rule-value rule-names))
 
 (defun eval-rule (&rest rule-names)
-  "Is similar fire-rule, but evaluate commands"
+  "Is similar fire-rule, but evaluate actions. Actions will
+  be evaluate only if the value of rule is true"
   (when (listp (first rule-names))
     (setf rule-names (first rule-names)))
   (let ((result t))
     (dolist (name rule-names)
       (if (rule-value name)
-          (eval-command (rule-commands (rule-by-name name)))
+          (map 'list
+               #'eval-action
+               (rule-actions (rule-by-name name)))
           (setf result nil)))
     result))

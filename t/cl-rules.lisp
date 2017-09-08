@@ -4,7 +4,7 @@
   (:import-from :cl-rules
                 :defparam
                 :setparam
-                :defcommand
+                :defaction
                 :defcond
                 :defrule
                 :eval-rule
@@ -48,12 +48,12 @@
   (not (null value)))
 
 
-(defcommand inc-counter
+(defaction inc-counter ()
   (incf *counter*))
 
 
 (defrule point
-  :commands '(inc-counter)
+  :actions ((inc-counter))
   (vertex-count-is vertex-count 1))
 
 (defrule line-segment
@@ -64,18 +64,18 @@
   (sum-of-angles-is-180 angles))
 
 (defrule right-triangle
-  :commands '(inc-counter)
+  :actions ((inc-counter))
   (vertex-count-is vertex-count 3)
   (sum-of-angles-is-180 angles)
   (one-angle-is angles 90))
 
 (defrule obtuse-triangle
-  :commands '(inc-counter)
+  :actions ((inc-counter))
   (is-true (fire-rule 'triangle))
   (one-angle-more-than angles 90))
 
 (defrule acute-triangle
-  :commands '(inc-counter)
+  :actions ((inc-counter))
   (is-true (fire-rule 'triangle))
   (all-angles-less-than angles 90))
 

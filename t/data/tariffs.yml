@@ -5,13 +5,13 @@ rules:
       - [cpu, "{{cpu}}", 1]
       - [disc, "{{disc}}", 20]
       - [traffic, "{{traffic}}", 1]
-    commands:
-      - pay
+    actions:
+      - [pay, 100]
   base-tariff:
     conditions:
       - [ram, "{{ram}}", 1024]
       - [cpu, "{{cpu}}", 1]
       - [disc, "{{disc}}", 30]
       - [traffic, "{{traffic}}", 2]
-    commands:
-      - pay
+    actions:
+      - [pay, 200]

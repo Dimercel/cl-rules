@@ -2,7 +2,7 @@
 (defpackage cl-rules-test.serialization
   (:use :cl :prove)
   (:import-from :cl-rules
-                :defcommand
+                :defaction
                 :defparam
                 :defcond
                 :fire-rule
@@ -37,9 +37,8 @@
 (defcond traffic (param index)
   (= param index))
 
-(defcommand pay
-  (when (fire-rule 'mini-tariff) (decf *balance* 100))
-  (when (fire-rule 'base-tariff) (decf *balance* 200)))
+(defaction pay (amount)
+  (decf *balance* amount))
 
 
 (loads (merge-pathnames "data/tariffs.yml" *load-truename*))

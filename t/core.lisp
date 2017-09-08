@@ -2,11 +2,11 @@
 (defpackage cl-rules-test.core
   (:use :cl :prove)
   (:import-from :cl-rules.core
-                :command-reg-p
+                :action-reg-p
                 :cond-args
                 :cond-name
                 :cond-reg-p
-                :defcommand
+                :defaction
                 :defcond
                 :defparam
                 :defrule
@@ -56,13 +56,13 @@
 (ok (cond-reg-p "TEST-COND"))
 
 
-(defcommand test-command ()
+(defaction test-action ()
   t)
 
-(ok (command-reg-p 'test-command))
-(ok (command-reg-p "test-command"))
-(ok (command-reg-p "tEst-cOmmAnd"))
-(ok (command-reg-p "TEST-COMMAND"))
+(ok (action-reg-p 'test-action))
+(ok (action-reg-p "test-action"))
+(ok (action-reg-p "tEst-ActIOn"))
+(ok (action-reg-p "TEST-ACTION"))
 
 
 (defparam mister-x t)
@@ -99,7 +99,7 @@
 (is "TEST-RULE" (rule-name (make-rule 'test-rule  '())))
 (is "TEST-RULE" (rule-name (make-rule "test-rule" '())))
 (is "TEST-RULE" (rule-name (make-rule "tEst-rule" '())))
-(is "TEST-RULE" (rule-name (make-rule "TEST-rule" '())))
+(is "TEST-RULE" (rule-name (make-rule "TEST-RULE" '())))
 
 ;; empty conditions list is correct
 (is 0 (length (rule-conditions (make-rule 'test-rule '()))))

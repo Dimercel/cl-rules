@@ -3,15 +3,19 @@
 (defpackage cl-rules.serialization
   (:use :cl :cl-yaml)
   (:import-from :cl-rules.core
+                :action-args
+                :action-name
+                :action-reg-p
                 :cond-args
                 :cond-name
                 :cond-reg-p
+                :make-action
                 :make-cond
                 :make-rule
                 :param-reg-p
                 :register-rule
                 :rule-by-name
-                :rule-commands
+                :rule-actions
                 :rule-conditions
                 :rule-name
                 :rule-reg-p)
@@ -33,18 +37,18 @@
        (equal (subseq item 0 2) "{{")
        (equal (subseq (reverse item) 0 2) "}}")))
 
-(defun unserialize-param (param-str)
+(defun unserialize-param (raw-param)
   (flet ((param-name (str)
            (string-right-trim
             "}}"
             (string-left-trim "{{" str))))
-    (let ((name (param-name param-str)))
+    (let ((name (param-name raw-param)))
       (unless (param-reg-p name)
         (error (format nil "Parameter with name '~a' not registered!" name)))
       (intern (string-upcase name)))))
 
-(defun unserialize-cond (condition)
-  (let ((cond-name (first condition)))
+(defun unserialize-cond (raw-condition)
+  (let ((cond-name (first raw-condition)))
     (unless (cond-reg-p cond-name)
       (error (format nil "Condition with name '~a' not registered!" cond-name)))
     (make-cond
@@ -54,23 +58,37 @@
             (if (is-param-p x)
                 (unserialize-param x)
                 x))
-          (rest condition)))))
+          (rest raw-condition)))))
+
+(defun unserialize-action (raw-action)
+  (let ((action-name (first raw-action)))
+    (unless (action-reg-p action-name)
+      (error (format nil "Action with name '~a' not registered!" action-name)))
+    (make-action
+     action-name
+     (map 'list
+          (lambda (x)
+            (if (is-param-p x)
+                (unserialize-param x)
+                x))
+          (rest raw-action)))))
 
 (defun unserialize-rule (name rules)
   (when (rule-reg-p name)
     (error (format nil "Rule with name '~a' already registered!" name)))
-  (if (listp (gethash name rules))
-      (make-rule
-       name
-       (map 'list
-            #'unserialize-cond
-            (gethash name rules)))
-      (make-rule
-       name
-       (map 'list
-            #'unserialize-cond
-            (gethash "conditions" (gethash name rules)))
-       (gethash "commands" (gethash name rules)))))
+  (let ((raw-rule (gethash name rules)))
+    (if (listp raw-rule)
+        (make-rule
+         name
+         (map 'list #'unserialize-cond raw-rule))
+        (make-rule
+         name
+         (map 'list
+              #'unserialize-cond
+              (gethash "conditions" raw-rule))
+         (map 'list
+              #'unserialize-action
+              (gethash "actions" raw-rule))))))
 
 (defun loads (str-or-path)
   (let ((result '())
@@ -102,19 +120,21 @@
               (eval x)))
         (cond-args condition))))
 
-(defun serialize-commands (commands)
-  (map 'list
-       (lambda (x)
-         (if (symbolp x)
-             (string-downcase (symbol-name x))
-             (string-downcase x)))
-       commands))
+(defun serialize-action (action)
+  (cons
+   (string-downcase (action-name action))
+   (map 'list
+        (lambda (x)
+          (if (and (symbolp x) (param-reg-p x))
+              (serialize-param x)
+              (eval x)))
+        (action-args action))))
 
 (defun serialize-rule (rule ruleset)
-  (let ((commands (serialize-commands (rule-commands rule)))
+  (let ((actions (map 'list #'serialize-action (rule-actions rule)))
         (conditions (map 'list #'serialize-cond (rule-conditions rule)))
         (name (string-downcase (rule-name rule))))
-    (if (null commands)
+    (if (null actions)
         (setf (gethash name (gethash +root-key+ ruleset))
               conditions)
         (progn
@@ -122,8 +142,8 @@
                 (make-hash-table :test 'equalp))
           (setf (gethash "conditions" (gethash name (gethash +root-key+ ruleset)))
                 conditions)
-          (setf (gethash "commands" (gethash name (gethash +root-key+ ruleset)))
-                commands)))
+          (setf (gethash "actions" (gethash name (gethash +root-key+ ruleset)))
+                actions)))
     ruleset))
 
 (defun save-to-str (&rest rule-names)
