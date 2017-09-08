@@ -108,7 +108,7 @@
              (lambda ,args ,@forms))))
 
 
-;;; Описание условий
+;;; Description of conditions
 
 
 (defun make-cond (name args)
