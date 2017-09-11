@@ -21,10 +21,11 @@
                 :rule-name
                 :rule-reg-p
                 :setparam
+                :unregister-rule
    ))
 (in-package :cl-rules-test.core)
 
-(plan 29)
+(plan 30)
 
 
 (defcond test-cond ()
@@ -111,5 +112,8 @@
 
 (is nil (param-val 'mister-x))
 
+
+(unregister-rule 'rule1)
+(ok (not (rule-reg-p 'rule1)))
 
 (finalize)
