@@ -22,7 +22,7 @@
                 ((:file "core")
                  (:file "serialization" :depends-on ("core"))
                  (:file "cl-rules" :depends-on ("core" "serialization")))))
-  :description ""
+  :description "Simple DSL for rules that can be configured without code"
   :long-description
   #.(with-open-file (stream (merge-pathnames
                              #p"README.markdown"
