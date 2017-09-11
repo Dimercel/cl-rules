@@ -30,8 +30,9 @@
 (define-constant +root-key+ "rules" :test 'equalp)
 
 (defun is-param-p (item)
-  "Строка представляет собой
-  указание на параметр?"
+  "Does the string contain a parameter?
+  Example: '{{param-name}}'"
+
   (and (stringp item)
        (> (length item) 4)
        (equal (subseq item 0 2) "{{")
