@@ -26,6 +26,7 @@
            :rule-name
            :rule-reg-p
            :setparam
+           :unregister-rule
            :with-rules))
 (in-package :cl-rules.core)
 
@@ -194,6 +195,12 @@
 (defun register-rule (rule)
   "Registers new rule. Names of rules must be unique"
   (setf (gethash (rule-name rule) *rules*) rule))
+
+(defun unregister-rule (name-of-rule)
+  (let ((rule (rule-by-name name-of-rule)))
+    (when rule
+      (remhash (rule-name rule) *rules*))))
+
 
 (defun actions-specified-p (rule-args)
   (when (> (length rule-args) 2)

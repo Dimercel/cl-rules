@@ -25,13 +25,14 @@
            :defcond
            :defparam
            :defrule
+           :eval-rule
            :fire-rule
+           :loads
            :param-reg-p
            :param-val
            :rule-reg-p
            :setparam
-           :with-rules
-           :loads
            :save-to-file
-           :save-to-str))
+           :save-to-str
+           :with-rules))
 (in-package :cl-rules)
