@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/Dimercel/cl-rules.svg?branch=master)](https://travis-ci.org/Dimercel/cl-rules)
 
-Simple DSL for rules that can be configured without code. If part of your programm logic is set of rules, this package will help you. You can create custom rules and conditions, bind actions to rules, load and save your rules from/in yaml format.
+Simple DSL for rules that can be configured without code. If part of your program logic is set of rules, this package will help you. You can create custom rules and conditions, bind actions to rules, load and save your rules from/in yaml format.
 
 ## Usage
 
