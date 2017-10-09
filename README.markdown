@@ -10,8 +10,9 @@ Consider a simple example: system of different tariffs, which defines in declara
 
 ### 1. Define your set of parameters
 
-  Parameters represent basic variables of your system. They may contain absolutely any information and arbitrary strusture. For creating them, specify the name and initial value. Any parameter can change own value over time, for this purpose is intended `setparam`.
-  In our example, parameters - this is basic characteristics of tariff. Define them:
+Parameters represent basic variables of your system. They may contain absolutely any information and arbitrary strusture. For creating them, specify the name and initial value. Any parameter can change own value over time, for this purpose is intended `setparam`.
+  
+In our example, parameters - this is basic characteristics of tariff. Define them:
 
 ```common-lisp
 (in-package :cl-user)
@@ -36,8 +37,9 @@ Consider a simple example: system of different tariffs, which defines in declara
 
 ### 2. Define your conditons
 
-  Condition represent predicate, which may be only a true or false. In the base case, conditions is a function of previosly defined parameters. With help of `param-val` you can get a parameter value within the condition or specify it in arguments.
-  All values of the tariff characteristics are in a certain range, therefore it is sufficient for us to define only one condition:
+Condition represent predicate, which may be only a true or false. In the base case, conditions is a function of previosly defined parameters. With help of `param-val` you can get a parameter value within the condition or specify it in arguments.
+  
+All values of the tariff characteristics are in a certain range, therefore it is sufficient for us to define only one condition:
 
 ```common-lisp
 (defcond between (low-limit high-limit value)
@@ -46,8 +48,9 @@ Consider a simple example: system of different tariffs, which defines in declara
 
 ### 3. Define your actions
 
-  Action - arbitrary kind of code. Any actions may be linked with rule. Action called only if rule is true.
-  Define two actions: first - withdraw money, second - print a account balance.
+Action - arbitrary kind of code. Any actions may be linked with rule. Action called only if rule is true.
+
+Define two actions: first - withdraw money from user account, second - print a user account balance.
 
 ```common-lisp
 (defaction pay (amount)
@@ -59,8 +62,9 @@ Consider a simple example: system of different tariffs, which defines in declara
 
 ### 4. Define your rules!!!
 
-  The rules - heart of our system. They consist of several conditions and optional actions. Conditions specified with concrete values of arguments and can be specified in arbitrary order. Only if all conditions are true, rule is true.
-  Now we can define the rules for our tariff system. On this stage exists two ways:
+The rules - heart of our system. They consist of several conditions and optional actions. Conditions specified with concrete values of arguments and can be specified in arbitrary order. Only if all conditions are true, rule is true.
+
+Now we can define the rules for our tariff system. On this stage exists two ways:
 
 define your rules in code
 
