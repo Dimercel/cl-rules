@@ -42,7 +42,7 @@
 
 (defun param-val (name &optional (bad-val nil))
   "Will return value of parameter, if he is exists.
-  If parameter with NAME not exists, then return
+  If parameter with NAME not exists, returns
   BAD-VAL. NAME is symbol or string"
   (if (symbolp name)
       (gethash (symbol-name name) *parameters* bad-val)
@@ -178,7 +178,7 @@
 
 (defun rule-actions (rule)
   "List of actions, linked with rule. If value of
-  rule is true, then actions evaluates"
+  rule is true, the actions evaluates"
   (third rule))
 
 
