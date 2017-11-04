@@ -137,6 +137,10 @@ More examples in [tests](https://github.com/Dimercel/cl-rules/tree/master/t).
 
 ## Installation
 
+```common-lisp
+(ql:quickload :cl-rules)
+```
+
 ## Author
 
 * Ito Dimercel (xolcman@gmail.com)
