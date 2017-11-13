@@ -108,7 +108,7 @@
 (ok (param-reg-p 'mister-x))
 (ok (not (param-reg-p 'james-bond)))
 
-(setparam mister-x nil)
+(setparam 'mister-x nil)
 
 (is nil (param-val 'mister-x))
 

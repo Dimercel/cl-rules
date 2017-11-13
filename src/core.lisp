@@ -37,6 +37,17 @@
 (defvar *rules*      (make-hash-table :test 'equal))
 
 
+(defun eval-params (args)
+  "If a parameter is specified among the arguments,
+   its value is replacement"
+  (map 'list
+       (lambda (x)
+         (if (and (symbolp x) (param-reg-p x))
+             (param-val x)
+             x))
+       args))
+
+
 ;;; Description of parameters
 
 
@@ -53,11 +64,11 @@
   (let ((uniq (gensym)))
     (not (equal (param-val name uniq) uniq))))
 
-(defmacro setparam (name form)
+(defun setparam (name val)
   "Set a new value for parameter"
-  `(when ,(param-reg-p name)
-     (setf (gethash ,(symbol-name name) *parameters*)
-           ,form)))
+  (when (param-reg-p name)
+    (setf (gethash (symbol-name name) *parameters*)
+           val)))
 
 (defmacro defparam (name form)
   "Defines a new parameter"
@@ -99,7 +110,7 @@
   called with arguments of action"
   (let ((name (action-name action)))
     (if (action-reg-p name)
-        (apply (gethash name *actions*) (action-args action))
+        (apply (gethash name *actions*) (eval-params (action-args action)))
         (error (format nil "Action with name '~a' does not exists!" name)))))
 
 (defmacro defaction (name args &body forms)
@@ -126,18 +137,6 @@
 (defun cond-args (condition)
   "Return list contains condition arguments"
   (second condition))
-
-(defun cond-eval-params (condition)
-  "Evaluate values of all parameters, which
-  specified in list of condition arguments"
-  (make-cond
-   (cond-name condition)
-   (map 'list
-        (lambda (x)
-          (if (and (symbolp x) (param-reg-p x))
-              (param-val x)
-              x))
-        (cond-args condition))))
 
 (defun cond-by-name (name)
   "Will return condiiton by specified name.
@@ -232,7 +231,7 @@
 (defun fire-condition (condition)
   "Evaluate predicate. Will return true or false"
   (let ((predicate (cond-by-name (cond-name condition))))
-    (apply predicate (cond-args (cond-eval-params condition)))))
+    (apply predicate (eval-params (cond-args condition)))))
 
 (defun rule-value (name)
   "Rule is true?"

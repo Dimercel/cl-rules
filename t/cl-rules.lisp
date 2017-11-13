@@ -89,14 +89,14 @@
 (ok (eval-rule 'point))
 (is *counter* 1)
 
-(setparam vertex-count 2)
-(setparam angles nil)
+(setparam 'vertex-count 2)
+(setparam 'angles nil)
 
 (ok (fire-rule 'line-segment))
 (ok (not (fire-rule 'point 'triangle 'square)))
 
-(setparam vertex-count 3)
-(setparam angles '(60 60 60))
+(setparam 'vertex-count 3)
+(setparam 'angles '(60 60 60))
 
 (ok (fire-rule 'triangle 'acute-triangle))
 (ok (not (fire-rule 'right-triangle 'obtuse-triangle)))
@@ -105,8 +105,8 @@
            'right-triangle 'obtuse-triangle 'acute-triangle)
 (is *counter* 2)
 
-(setparam vertex-count 3)
-(setparam angles '(90 45 45))
+(setparam 'vertex-count 3)
+(setparam 'angles '(90 45 45))
 
 (ok (fire-rule 'triangle 'right-triangle))
 (ok (not (fire-rule 'obtuse-triangle 'acute-triangle)))
@@ -114,15 +114,15 @@
 (eval-rule 'right-triangle)
 (is *counter* 3)
 
-(setparam vertex-count 3)
-(setparam angles '(120 30 30))
+(setparam 'vertex-count 3)
+(setparam 'angles '(120 30 30))
 
 (ok (fire-rule 'triangle 'obtuse-triangle))
 (ok (not (fire-rule 'right-triangle 'acute-triangle)))
 (ok (not (fire-rule 'point 'line-segment 'square )))
 
-(setparam vertex-count 4)
-(setparam angles '(90 90 90 90))
+(setparam 'vertex-count 4)
+(setparam 'angles '(90 90 90 90))
 
 (ok (fire-rule 'square))
 (ok (not (fire-rule 'point 'line-segment 'triangle )))

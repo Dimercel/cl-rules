@@ -53,10 +53,10 @@
 (is *balance* 800)
 
 
-(setparam ram 2048)
-(setparam cpu 2)
-(setparam disc 40)
-(setparam traffic 3)
+(setparam 'ram 2048)
+(setparam 'cpu 2)
+(setparam 'disc 40)
+(setparam 'traffic 3)
 
 ;; Correct loading from string
 (loads
