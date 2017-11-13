@@ -104,7 +104,7 @@
                       result)))
              data)
     (let ((names (map 'list 'rule-name result)))
-      ;; регистрируем все загруженные правила
+      ;; registering all loaded rules
       (map 'list 'register-rule result)
       names)))
 
