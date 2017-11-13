@@ -28,9 +28,9 @@ In our example, parameters - this is basic characteristics of tariff. Define the
 (in-package :my-package)
 
 
-(defparam ram (user-ram-value))
-(defparam cpu (user-cpu-value))
-(defparam disk (user-disk-value))
+(defparam ram 0)
+(defparam cpu 0)
+(defparam disk 0)
 
 (defvar *user-balance* 1000) ;; Starting value of user balance. Only for illustration.
 ```
