@@ -6,6 +6,7 @@
                 :cond-args
                 :cond-name
                 :cond-reg-p
+                :cond-val
                 :defaction
                 :defcond
                 :defparam
@@ -25,7 +26,7 @@
    ))
 (in-package :cl-rules-test.core)
 
-(plan 30)
+(plan 33)
 
 
 (defcond test-cond ()
@@ -111,6 +112,13 @@
 (setparam 'mister-x nil)
 
 (is nil (param-val 'mister-x))
+
+(defcond less-seven (val)
+  (< val 7))
+
+(is t (cond-val 'less-seven '(1)))
+(is nil (cond-val 'less-seven '(10)))
+(is 7 (cond-val 'not-valid-name '() 7))
 
 
 (unregister-rule 'rule1)

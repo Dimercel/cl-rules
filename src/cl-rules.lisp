@@ -4,6 +4,7 @@
   (:import-from :cl-rules.core
                 :action-reg-p
                 :cond-reg-p
+                :cond-val
                 :defaction
                 :defcond
                 :defparam
@@ -21,6 +22,7 @@
                 :save-to-str)
   (:export :action-reg-p
            :cond-reg-p
+           :cond-val
            :defaction
            :defcond
            :defparam

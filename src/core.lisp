@@ -9,6 +9,7 @@
            :cond-args
            :cond-name
            :cond-reg-p
+           :cond-val
            :defaction
            :defcond
            :defparam
@@ -148,6 +149,12 @@
 (defun cond-reg-p (name)
   "Condition with NAME id registered?"
   (not (null (cond-by-name name))))
+
+(defun cond-val (name args &optional (bad-val nil))
+  "Return value of condition for specified arguments"
+  (if (cond-reg-p name)
+      (apply (cond-by-name name) args)
+      bad-val))
 
 (defmacro defcond (name args &body forms)
   "Define new condition with NAME.
