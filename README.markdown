@@ -147,7 +147,7 @@ More examples in [tests](https://github.com/Dimercel/cl-rules/tree/master/t).
 
 ## Copyright
 
-Copyright (c) 2017 Ito Dimercel (xolcman@gmail.com)
+Copyright (c) 2019 Ito Dimercel (xolcman@gmail.com)
 
 ## License
 

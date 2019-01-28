@@ -1,6 +1,6 @@
 #|
   This file is a part of cl-rules project.
-  Copyright (c) 2017 Ito Dimercel (xolcman@gmail.com)
+  Copyright (c) 2019 Ito Dimercel (xolcman@gmail.com)
 |#
 
 (in-package :cl-user)
