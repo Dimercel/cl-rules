@@ -82,18 +82,16 @@
 ;;; Description of actions
 
 
-(defun make-action (name args)
+(defstruct (action (:constructor %make-action))
   "Action consists of name and arguments for the function.
-  ARGS - list of arguments, which will be link with function"
+    ARGS - list of arguments, which will be link with function"
+  name
+  args)
+
+(defun make-action (name args)
   (if (symbolp name)
-      (list (symbol-name name) args)
-      (list (string-upcase name) args)))
-
-(defun action-name (action)
-  (first action))
-
-(defun action-args (action)
-  (second action))
+      (%make-action :name (symbol-name name)   :args args)
+      (%make-action :name (string-upcase name) :args args)))
 
 (defun action-by-name (name)
   "Return action by specified name.
