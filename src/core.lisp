@@ -166,25 +166,17 @@
 ;;; Description of rules
 
 
+(defstruct (rule (:constructor %make-rule))
+  name
+  conditions
+  actions)
+
 (defun make-rule (name conditions &optional actions)
   "Create new rule with NAME and list of conditions.
   Rule is true, only if all conditions is true"
   (if (symbolp name)
-      (list (symbol-name name) conditions actions)
-      (list (string-upcase name) conditions actions)))
-
-(defun rule-name (rule)
-  (first rule))
-
-(defun rule-conditions (rule)
-  "Condition stored with static values of arguments"
-  (second rule))
-
-(defun rule-actions (rule)
-  "List of actions, linked with rule. If value of
-  rule is true, the actions evaluates"
-  (third rule))
-
+      (%make-rule :name (symbol-name name)   :conditions conditions :actions actions)
+      (%make-rule :name (string-upcase name) :conditions conditions :actions actions)))
 
 (defun rule-by-name (name)
   "NAME is symbol or string"
