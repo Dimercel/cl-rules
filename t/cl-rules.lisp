@@ -5,7 +5,7 @@
                 :defparam
                 :setparam
                 :defaction
-                :defcond
+                :defcondn
                 :defrule
                 :eval-rule
                 :fire-rule))
@@ -20,31 +20,31 @@
 (defvar *counter* 0)
 
 
-(defcond vertex-count-is (param number)
+(defcondn vertex-count-is (param number)
   (= param number))
 
-(defcond sum-of-angles-is-180 (angles)
+(defcondn sum-of-angles-is-180 (angles)
   (= (apply '+ angles) 180))
 
-(defcond one-angle-is (angles value)
+(defcondn one-angle-is (angles value)
   (find value angles))
 
-(defcond one-angle-more-than (angles value)
+(defcondn one-angle-more-than (angles value)
   (some (lambda (x)
           (> x value))
         angles))
 
-(defcond all-angles-less-than (angles value)
+(defcondn all-angles-less-than (angles value)
   (every (lambda (x)
            (< x value))
          angles))
 
-(defcond all-angles-is (angles value)
+(defcondn all-angles-is (angles value)
   (every (lambda (x)
            (= x value))
          angles))
 
-(defcond is-true (value)
+(defcondn is-true (value)
   (not (null value)))
 
 

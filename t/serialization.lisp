@@ -4,7 +4,7 @@
   (:import-from :cl-rules
                 :defaction
                 :defparam
-                :defcond
+                :defcondn
                 :fire-rule
                 :eval-rule
                 :setparam)
@@ -25,16 +25,16 @@
 (defvar *balance* 1000)
 
 
-(defcond ram (param index)
+(defcondn ram (param index)
   (= param index))
 
-(defcond cpu (param index)
+(defcondn cpu (param index)
   (= param index))
 
-(defcond disc (param index)
+(defcondn disc (param index)
   (= param index))
 
-(defcond traffic (param index)
+(defcondn traffic (param index)
   (= param index))
 
 (defaction pay (amount)

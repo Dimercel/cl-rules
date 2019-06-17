@@ -3,10 +3,10 @@
   (:use :cl)
   (:import-from :cl-rules.core
                 :action-reg-p
-                :cond-reg-p
-                :cond-val
+                :condn-reg-p
+                :condn-val
                 :defaction
-                :defcond
+                :defcondn
                 :defparam
                 :defrule
                 :eval-rule
@@ -21,8 +21,8 @@
                 :save-to-file
                 :save-to-str)
   (:export :action-reg-p
-           :cond-reg-p
-           :cond-val
+           :condn-reg-p
+           :condn-val
            :defaction
            :defcond
            :defparam

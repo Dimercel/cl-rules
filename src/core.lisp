@@ -6,10 +6,10 @@
   (:export :action-reg-p
            :action-name
            :action-args
-           :cond-args
-           :cond-name
-           :cond-reg-p
-           :cond-val
+           :condn-args
+           :condn-name
+           :condn-reg-p
+           :condn-val
            :defaction
            :defcond
            :defparam
@@ -17,7 +17,7 @@
            :eval-rule
            :fire-rule
            :make-action
-           :make-cond
+           :make-condn
            :make-rule
            :param-reg-p
            :param-val
@@ -122,42 +122,38 @@
 ;;; Description of conditions
 
 
-(defun make-cond (name args)
+(defstruct (condn (:constructor %make-condn))
+  name
+  args)
+
+(defun make-condn (name args)
   "Create condition from itself name and list
   of arguments ARGS. NAME is symbol or string"
     (if (symbolp name)
-        (list (symbol-name name) args)
-        (list (string-upcase name) args)))
+        (%make-condn :name (symbol-name name)   :args args)
+        (%make-condn :name (string-upcase name) :args args)))
 
-(defun cond-name (condition)
-  "Will return name of condition as string"
-  (first condition))
-
-(defun cond-args (condition)
-  "Return list contains condition arguments"
-  (second condition))
-
-(defun cond-by-name (name)
+(defun condn-by-name (name)
   "Will return condiiton by specified name.
   NAME is symbol or string"
   (if (symbolp name)
       (gethash (symbol-name name) *conditions*)
       (gethash (string-upcase name) *conditions*)))
 
-(defun cond-reg-p (name)
+(defun condn-reg-p (name)
   "Condition with NAME id registered?"
-  (not (null (cond-by-name name))))
+  (not (null (condn-by-name name))))
 
-(defun cond-val (name args &optional (bad-val nil))
+(defun condn-val (name args &optional (bad-val nil))
   "Return value of condition for specified arguments"
-  (if (cond-reg-p name)
-      (apply (cond-by-name name) args)
+  (if (condn-reg-p name)
+      (apply (condn-by-name name) args)
       bad-val))
 
-(defmacro defcond (name args &body forms)
+(defmacro defcondn (name args &body forms)
   "Define new condition with NAME.
   Represents arbitrary predicate"
-  (if (cond-reg-p name)
+  (if (condn-reg-p name)
       (error (format nil "Condition with name '~a' already exists!" name))
       `(setf (gethash ,(symbol-name name) *conditions*)
              (lambda ,args ,@forms))))
@@ -212,7 +208,7 @@
                           act-list))))
         (conditions (map 'list
                          (lambda (x)
-                           (make-cond (first x) (rest x)))
+                           (make-condn (first x) (rest x)))
                          forms)))
     (if (rule-reg-p name)
         (error (format nil "Rule with name '~a' already exists!" name))
@@ -227,8 +223,8 @@
 
 (defun fire-condition (condition)
   "Evaluate predicate. Will return true or false"
-  (let ((predicate (cond-by-name (cond-name condition))))
-    (apply predicate (eval-params (cond-args condition)))))
+  (let ((predicate (condn-by-name (condn-name condition))))
+    (apply predicate (eval-params (condn-args condition)))))
 
 (defun rule-value (name)
   "Rule is true?"

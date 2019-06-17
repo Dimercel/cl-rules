@@ -6,11 +6,11 @@
                 :action-args
                 :action-name
                 :action-reg-p
-                :cond-args
-                :cond-name
-                :cond-reg-p
+                :condn-args
+                :condn-name
+                :condn-reg-p
                 :make-action
-                :make-cond
+                :make-condn
                 :make-rule
                 :param-reg-p
                 :register-rule
@@ -49,11 +49,11 @@
       (intern (string-upcase name)))))
 
 (defun unserialize-cond (raw-condition)
-  (let ((cond-name (first raw-condition)))
-    (unless (cond-reg-p cond-name)
-      (error (format nil "Condition with name '~a' not registered!" cond-name)))
-    (make-cond
-     cond-name
+  (let ((condn-name (first raw-condition)))
+    (unless (condn-reg-p condn-name)
+      (error (format nil "Condition with name '~a' not registered!" condn-name)))
+    (make-condn
+     condn-name
      (map 'list
           (lambda (x)
             (if (is-param-p x)
@@ -113,13 +113,13 @@
 
 (defun serialize-cond (condition)
   (cons
-   (string-downcase (cond-name condition))
+   (string-downcase (condn-name condition))
    (map 'list
         (lambda (x)
           (if (and (symbolp x) (param-reg-p x))
               (serialize-param x)
               (eval x)))
-        (cond-args condition))))
+        (condn-args condition))))
 
 (defun serialize-action (action)
   (cons

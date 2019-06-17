@@ -3,16 +3,16 @@
   (:use :cl :prove)
   (:import-from :cl-rules.core
                 :action-reg-p
-                :cond-args
-                :cond-name
-                :cond-reg-p
-                :cond-val
+                :condn-args
+                :condn-name
+                :condn-reg-p
+                :condn-val
                 :defaction
-                :defcond
+                :defcondn
                 :defparam
                 :defrule
                 :fire-rule
-                :make-cond
+                :make-condn
                 :make-rule
                 :param-reg-p
                 :param-val
@@ -29,33 +29,33 @@
 (plan 33)
 
 
-(defcond test-cond ()
+(defcondn test-cond ()
   t)
 
 ;; Not possible to redefine condition
-(is-error (defcond test-cond () t) 'error)
+(is-error (defcondn test-cond () t) 'error)
 
 
-;; cond-name always return string in upper case
-(is "TEST-COND" (cond-name (make-cond 'test-cond  '(1 2 3))))
-(is "TEST-COND" (cond-name (make-cond "test-cond" '(1 2 3))))
-(is "TEST-COND" (cond-name (make-cond "tEst-cOnd" '(1 2 3))))
-(is "TEST-COND" (cond-name (make-cond "TEST-COND" '(1 2 3))))
+;; condn-name always return string in upper case
+(is "TEST-COND" (condn-name (make-condn 'test-cond  '(1 2 3))))
+(is "TEST-COND" (condn-name (make-condn "test-cond" '(1 2 3))))
+(is "TEST-COND" (condn-name (make-condn "tEst-cOnd" '(1 2 3))))
+(is "TEST-COND" (condn-name (make-condn "TEST-COND" '(1 2 3))))
 
-(ok (equal (cond-name (make-cond 'test-cond '(1 2 3)))
-           (cond-name (make-cond "test-cond" '(1 2 3)))))
+(ok (equal (condn-name (make-condn 'test-cond '(1 2 3)))
+           (condn-name (make-condn "test-cond" '(1 2 3)))))
 
-(ok (equal (cond-name (make-cond "test-cond" '(1 2 3)))
-           (cond-name (make-cond "TEST-COND" '(1 2 3)))))
+(ok (equal (condn-name (make-condn "test-cond" '(1 2 3)))
+           (condn-name (make-condn "TEST-COND" '(1 2 3)))))
 
 ;; empty arguments list is correct
-(is 0 (length (cond-args (make-cond 'test-cond '()))))
+(is 0 (length (condn-args (make-condn 'test-cond '()))))
 
 ;; equivalent names
-(ok (cond-reg-p 'test-cond))
-(ok (cond-reg-p "test-cond"))
-(ok (cond-reg-p "tEst-cOnd"))
-(ok (cond-reg-p "TEST-COND"))
+(ok (condn-reg-p 'test-cond))
+(ok (condn-reg-p "test-cond"))
+(ok (condn-reg-p "tEst-cOnd"))
+(ok (condn-reg-p "TEST-COND"))
 
 
 (defaction test-action ()
@@ -69,13 +69,13 @@
 
 (defparam mister-x t)
 
-(defcond always-true ()
+(defcondn always-true ()
   t)
 
-(defcond always-false ()
+(defcondn always-false ()
   nil)
 
-(defcond uncertain (value)
+(defcondn uncertain (value)
   value)
 
 (defrule rule1
@@ -113,12 +113,12 @@
 
 (is nil (param-val 'mister-x))
 
-(defcond less-seven (val)
+(defcondn less-seven (val)
   (< val 7))
 
-(is t (cond-val 'less-seven '(1)))
-(is nil (cond-val 'less-seven '(10)))
-(is 7 (cond-val 'not-valid-name '() 7))
+(is t (condn-val 'less-seven '(1)))
+(is nil (condn-val 'less-seven '(10)))
+(is 7 (condn-val 'not-valid-name '() 7))
 
 
 (unregister-rule 'rule1)
