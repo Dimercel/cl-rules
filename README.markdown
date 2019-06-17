@@ -21,7 +21,7 @@ In our example, parameters - this is basic characteristics of a tariff. Define t
   (:import-from :cl-rules
                 :defparam
                 :defaction
-                :defcond
+                :defcondn
                 :defrule
                 :eval-rule
                 :fire-rule)))
@@ -42,7 +42,7 @@ Condition represent predicate, which may be only a true or false. In the base ca
 All values of the tariff characteristics are in a certain range, therefore it is sufficient for us to define only one condition:
 
 ```common-lisp
-(defcond between (low-limit high-limit value)
+(defcondn between (low-limit high-limit value)
   (and (>= value low-limit) (<= value high-limit value)))
 ```
 
